@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 
 const HomePage = () => (
   <Layout title="Blog Api">
-    <div style={{ position: 'relative' }}>
+    <div>
       <img src="/back.jpg" alt="blog" />
       <div className="cntr-text">
         <span>See our Blogs</span>
