@@ -1,25 +1,34 @@
 import Link from 'next/link';
 import Layout from '../../components/Layout';
-import { getPosts, getPostData } from '../../lib/posts';
+import { fetcher, baseURL } from '../../lib/myApi';
+import useSWR from 'swr';
 
-const BlogPage = ({ data }) => (
-  <Layout title={data.title}>
-    <div className="container mt-4 d-flex justify-content-center">
-      <div className="card text-center">
-        <div className="card-body">
-          <h2 className="card-title">{data.title}</h2>
-          <p className="card-text">{data.body}</p>
-          <Link href="/blog">
-            <a>Go Back</a>
-          </Link>
+const BlogPage = ({ post, id }) => {
+  const { data: postData } = useSWR(`${baseURL}/posts/${id}`, fetcher, {
+    initialData: post
+  });
+
+  return (
+    <Layout title={postData.title}>
+      <div className="container mt-4 d-flex justify-content-center">
+        <div className="card text-center">
+          <div className="card-body">
+            <h2 className="card-title">{postData.title}</h2>
+            <p className="card-text">{postData.body}</p>
+            <Link href="/blog">
+              <a>Go Back</a>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  </Layout>
-);
+    </Layout>
+  );
+};
 
 export async function getStaticPaths() {
-  const paths = (await getPosts()).map(post => `/blog/${post.id}`);
+  const paths = (await fetcher(`${baseURL}/posts`)).map(
+    post => `/blog/${post.id}`
+  );
 
   return {
     paths,
@@ -27,11 +36,13 @@ export async function getStaticPaths() {
   };
 }
 
-export async function getStaticProps({ params }) {
-  const data = await getPostData(params.id);
+export async function getStaticProps({ params: { id } }) {
+  const post = await fetcher(`${baseURL}/posts/${id}`);
+
   return {
     props: {
-      data
+      post,
+      id
     }
   };
 }
